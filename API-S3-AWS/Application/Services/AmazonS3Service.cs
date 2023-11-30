@@ -2,6 +2,7 @@
 using Amazon.Internal;
 using Amazon.Runtime;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 
 namespace API_S3_AWS.Application.Services
@@ -20,7 +21,7 @@ namespace API_S3_AWS.Application.Services
         {
 
             AwsKeyId = "YOUR_KEY";
-            AwsKeySecret = "YOUR_KEY_SECRET";
+            AwsKeySecret = "";
             basicAWSCredentials = new BasicAWSCredentials(AwsKeyId, AwsKeySecret);
             var config = new AmazonS3Config
             {
@@ -45,6 +46,20 @@ namespace API_S3_AWS.Application.Services
                 ContentType = file.ContentType
             });
             return true;
+        }
+
+        public string GetFileUrl(string bucket, string key, int expirationMinutes = 60)
+        {
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = bucket,
+                Key = key,
+                Expires = DateTime.Now.AddMinutes(expirationMinutes),
+                Protocol = Protocol.HTTPS // Use HTTPS for secure connections
+            };
+
+            string url = _amazonS3.GetPreSignedURL(request);
+            return url;
         }
 
 
